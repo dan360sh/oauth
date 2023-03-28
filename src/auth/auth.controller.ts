@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { JwtAuthGuard } from "./jwt-auth.guard";
+import { Roles } from "./roles-auth.decorator";
 
 @Controller('auth')
 export class AuthController {
@@ -12,10 +12,11 @@ export class AuthController {
     return this.authService.generateToken();
    // return this.appService.getHello();
   }
-  @UseGuards(JwtAuthGuard)
+  @Roles("admon")
+  // @UseGuards(JwtAuthGuard)
   @Get('test')
   async test(){
-    return "hello world";
+    return this.authService.test();
     // return this.appService.getHello();
   }
 }
