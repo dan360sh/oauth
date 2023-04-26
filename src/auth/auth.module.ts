@@ -1,10 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UsersModule } from "../users/users.module";
 import { JwtModule } from "@nestjs/jwt";
 import { APP_GUARD } from "@nestjs/core";
 import { RolesGuard } from "./roles.guard";
+import { UserService } from './user/user.service';
+import {MongooseModule} from "@nestjs/mongoose";
+import {User, UserSchema} from "../schemas/users";
+import {Email} from "../class/mail";
+import {Session, SessionSchema} from "../schemas/session";
 
 @Module({
   controllers: [AuthController],
@@ -13,10 +17,11 @@ import { RolesGuard } from "./roles.guard";
     {
       provide: APP_GUARD,
       useClass: RolesGuard
-    }
+    },
+    UserService,
+    Email
   ],
   imports: [
-    UsersModule,
     JwtModule.register({
       publicKey:"-----BEGIN PUBLIC KEY-----\n" +
         "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy62CMcBEXwsSQAmuy4cm\n" +
@@ -56,10 +61,13 @@ import { RolesGuard } from "./roles.guard";
         "OQDMV6xlzAhMddJRiAvh0/Bb\n" +
         "-----END PRIVATE KEY-----",
       signOptions: {
-        expiresIn: '24h',
+        expiresIn: '5m',
         algorithm: 'RS256',
       }
-    })
+    }),
+    MongooseModule.forRoot('mongodb://127.0.0.1:27017'),
+    MongooseModule.forFeature([{name: User.name, schema: UserSchema}]),
+    MongooseModule.forFeature([{name: Session.name, schema: SessionSchema}]),
   ]
 })
 export class AuthModule {}
